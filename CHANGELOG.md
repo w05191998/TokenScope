@@ -17,6 +17,11 @@ This project follows explicit versioned release notes. Dates use `YYYY-MM-DD`.
 - Added token waste analysis research notes.
 - Added manual pricing catalog update documentation.
 - Added first-pass session detail, diagnostics, and database maintenance controls.
+- Added dark mode support by switching the popover palette to semantic AppKit colors.
+- Surfaced refresh failures with the underlying error message and a compact warning row on the Overview tab.
+- Added a first-run onboarding empty state pointing to `~/.claude` and `~/.codex` when no local usage has been found yet.
+- Added tooltips to maintenance buttons and the Waste Signals / Optimization Tips section headers.
+- Added a scope-themed menu bar icon and app icon.
 
 ## 0.1.0 - Local Test Builds
 

@@ -46,7 +46,7 @@ final class UsageRefreshCoordinator {
             snapshotLock.unlock()
         } catch {
             snapshotLock.lock()
-            snapshot.lastErrorDescription = "Refresh failed"
+            snapshot.lastErrorDescription = "Refresh failed: \(error.localizedDescription)"
             snapshot.isRefreshing = false
             snapshotLock.unlock()
         }

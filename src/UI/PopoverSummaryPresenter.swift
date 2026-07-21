@@ -8,6 +8,7 @@ struct PopoverRenderState: Equatable {
     var totalTokensText: String
     var sessionCountText: String
     var sections: [PopoverSectionRenderState]
+    var refreshWarningText: String? = nil
     var footerTitle: String
 
     static let unavailable = PopoverRenderState(
@@ -55,15 +56,18 @@ final class PopoverSummaryPresenter {
 
     private let summaryProvider: PopoverSummaryProviding
     private let formatter: MenuBarSummaryFormatter
+    private let refreshErrorText: () -> String?
 
     init(
         selectedRange: PopoverTimeRange = .today,
         summaryProvider: PopoverSummaryProviding,
-        formatter: MenuBarSummaryFormatter = MenuBarSummaryFormatter()
+        formatter: MenuBarSummaryFormatter = MenuBarSummaryFormatter(),
+        refreshErrorText: @escaping () -> String? = { nil }
     ) {
         self.selectedRange = selectedRange
         self.summaryProvider = summaryProvider
         self.formatter = formatter
+        self.refreshErrorText = refreshErrorText
     }
 
     func refresh() -> PopoverRenderState {
@@ -137,23 +141,46 @@ final class PopoverSummaryPresenter {
             totalTokensText: formatter.compactTokensText(snapshot.totalTokens),
             sessionCountText: formatter.menuSessionText(snapshot.sessionCount),
             sections: sections,
+            refreshWarningText: refreshWarningText(),
             footerTitle: "Quit"
         )
     }
 
-    private func emptyStateSection() -> PopoverSectionRenderState {
-        let detail: String
-
-        switch selectedRange {
-        case .total:
-            detail = "Use Refresh Now, then check System if local logs were skipped"
-        case .today:
-            detail = "Try Total or 7d if today has no local sessions"
-        case .customLastDays:
-            detail = "Try Total if this range has no local sessions"
+    private func refreshWarningText() -> String? {
+        guard selectedContent == .overview, refreshErrorText() != nil else {
+            return nil
         }
 
-        return PopoverSectionRenderState(
+        return "⚠️ Last refresh failed — see System tab"
+    }
+
+    private func emptyStateSection() -> PopoverSectionRenderState {
+        switch selectedRange {
+        case .total:
+            return onboardingEmptyStateSection()
+        case .today:
+            return noSessionsSection(detail: "Try Total or 7d if today has no local sessions")
+        case .customLastDays:
+            return noSessionsSection(detail: "Try Total if this range has no local sessions")
+        }
+    }
+
+    private func onboardingEmptyStateSection() -> PopoverSectionRenderState {
+        PopoverSectionRenderState(
+            title: "No Sessions",
+            rows: [
+                PopoverRowRenderState(
+                    title: "No local usage found yet",
+                    detail: "TokenScope reads local Claude Code and Codex session logs from ~/.claude and ~/.codex. No usage found yet — data appears after your next Claude Code or Codex session.",
+                    value: "—"
+                )
+            ],
+            emptyText: "No sessions"
+        )
+    }
+
+    private func noSessionsSection(detail: String) -> PopoverSectionRenderState {
+        PopoverSectionRenderState(
             title: "No Sessions",
             rows: [
                 PopoverRowRenderState(

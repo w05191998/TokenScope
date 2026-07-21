@@ -49,7 +49,7 @@ final class UsageRefreshCoordinatorTests: XCTestCase {
 
         XCTAssertEqual(failedSnapshot.lastSucceededAt, successfulSnapshot.lastSucceededAt)
         XCTAssertEqual(failedSnapshot.lastResult, successfulSnapshot.lastResult)
-        XCTAssertEqual(failedSnapshot.lastErrorDescription, "Refresh failed")
+        XCTAssertEqual(failedSnapshot.lastErrorDescription, "Refresh failed: unavailable for testing")
         XCTAssertEqual(failedSnapshot.isRefreshing, false)
     }
 
@@ -88,6 +88,8 @@ final class UsageRefreshCoordinatorTests: XCTestCase {
     }
 }
 
-private enum TestError: Error {
+private enum TestError: Error, LocalizedError {
     case unavailable
+
+    var errorDescription: String? { "unavailable for testing" }
 }

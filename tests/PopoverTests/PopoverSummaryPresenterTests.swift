@@ -958,6 +958,49 @@ final class PopoverSummaryPresenterTests: XCTestCase {
         ])
     }
 
+    func testPresenterShowsOnboardingEmptyStateForEmptyTotalRange() {
+        let presenter = PopoverSummaryPresenter(
+            selectedRange: .total,
+            summaryProvider: InMemoryPopoverSummaryProvider()
+        )
+
+        let state = presenter.refresh()
+
+        XCTAssertEqual(state.sections, [
+            PopoverSectionRenderState(
+                title: "No Sessions",
+                rows: [
+                    PopoverRowRenderState(
+                        title: "No local usage found yet",
+                        detail: "TokenScope reads local Claude Code and Codex session logs from ~/.claude and ~/.codex. No usage found yet — data appears after your next Claude Code or Codex session.",
+                        value: "—"
+                    )
+                ],
+                emptyText: "No sessions"
+            )
+        ])
+    }
+
+    func testPresenterSurfacesRefreshWarningOnOverviewOnly() {
+        let presenter = PopoverSummaryPresenter(
+            summaryProvider: InMemoryPopoverSummaryProvider(),
+            refreshErrorText: { "Refresh failed: offline" }
+        )
+
+        let overviewState = presenter.refresh()
+        XCTAssertEqual(overviewState.refreshWarningText, "⚠️ Last refresh failed — see System tab")
+
+        presenter.selectedContent = .system
+        let systemState = presenter.refresh()
+        XCTAssertNil(systemState.refreshWarningText)
+    }
+
+    func testPresenterOmitsRefreshWarningWithoutError() {
+        let presenter = PopoverSummaryPresenter(summaryProvider: InMemoryPopoverSummaryProvider())
+
+        XCTAssertNil(presenter.refresh().refreshWarningText)
+    }
+
     private func makeSession(
         id: String,
         provider: Provider,

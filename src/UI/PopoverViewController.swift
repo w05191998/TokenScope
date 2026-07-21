@@ -69,6 +69,9 @@ final class PopoverViewController: NSViewController {
             contentStack.addArrangedSubview(maintenanceControls())
         } else {
             contentStack.addArrangedSubview(rangeSelector(state))
+            if let refreshWarningText = state.refreshWarningText {
+                contentStack.addArrangedSubview(refreshWarningLabel(refreshWarningText))
+            }
             contentStack.addArrangedSubview(summaryGrid(state))
 
             for section in state.sections {
@@ -183,6 +186,7 @@ final class PopoverViewController: NSViewController {
         stack.translatesAutoresizingMaskIntoConstraints = false
 
         let title = label(section.title, font: .boldSystemFont(ofSize: 12), color: sectionTitleColor(section.title))
+        title.toolTip = sectionTitleTooltip(section.title)
         stack.addArrangedSubview(title)
 
         if section.rows.isEmpty {
@@ -253,6 +257,14 @@ final class PopoverViewController: NSViewController {
         return container
     }
 
+    private func refreshWarningLabel(_ text: String) -> NSTextField {
+        let field = label(text, font: .systemFont(ofSize: 11, weight: .medium), color: .systemRed)
+        field.lineBreakMode = .byWordWrapping
+        field.maximumNumberOfLines = 2
+        field.widthAnchor.constraint(equalToConstant: contentWidth).isActive = true
+        return field
+    }
+
     private func lastUpdatedLabel() -> NSTextField {
         label(lastUpdatedText(), font: .systemFont(ofSize: 11), color: PopoverPalette.mutedText)
     }
@@ -285,6 +297,7 @@ final class PopoverViewController: NSViewController {
         let refreshButton = NSButton(title: "Refresh Now", target: self, action: #selector(refreshNow))
         refreshButton.bezelStyle = .rounded
         refreshButton.controlSize = .small
+        refreshButton.toolTip = "Rescan local logs now"
 
         let quitButton = NSButton(title: quitTitle, target: self, action: #selector(quit))
         quitButton.bezelStyle = .rounded
@@ -315,14 +328,17 @@ final class PopoverViewController: NSViewController {
         let rebuildButton = NSButton(title: "Rebuild Database", target: self, action: #selector(rebuildDatabase))
         rebuildButton.bezelStyle = .rounded
         rebuildButton.controlSize = .small
+        rebuildButton.toolTip = "Clears the local database and rescans all logs"
 
         let clearButton = NSButton(title: "Clear Data", target: self, action: #selector(clearLocalData))
         clearButton.bezelStyle = .rounded
         clearButton.controlSize = .small
+        clearButton.toolTip = "Deletes all locally stored usage data"
 
         let openButton = NSButton(title: "Open DB", target: self, action: #selector(openDatabaseLocation))
         openButton.bezelStyle = .rounded
         openButton.controlSize = .small
+        openButton.toolTip = "Reveals the SQLite database file in Finder"
 
         buttonStack.addArrangedSubview(rebuildButton)
         buttonStack.addArrangedSubview(clearButton)
@@ -355,6 +371,17 @@ final class PopoverViewController: NSViewController {
         field.maximumNumberOfLines = 1
         field.translatesAutoresizingMaskIntoConstraints = false
         return field
+    }
+
+    private func sectionTitleTooltip(_ sectionTitle: String) -> String? {
+        switch sectionTitle {
+        case "Waste Signals":
+            return "Patterns that burned tokens without adding value"
+        case "Optimization Tips":
+            return "Suggestions to reduce token spend"
+        default:
+            return nil
+        }
     }
 
     private func sectionTitleColor(_ sectionTitle: String) -> NSColor {
@@ -557,20 +584,20 @@ private final class PopoverRowGestureRecognizer: NSClickGestureRecognizer {
 }
 
 private enum PopoverPalette {
-    static let background = NSColor.white
-    static let rowBackground = NSColor(calibratedRed: 0.976, green: 0.980, blue: 0.984, alpha: 1)
-    static let selectedBackground = NSColor(calibratedRed: 0.898, green: 0.941, blue: 1.000, alpha: 1)
-    static let warningBackground = NSColor(calibratedRed: 1.000, green: 0.957, blue: 0.855, alpha: 1)
-    static let successBackground = NSColor(calibratedRed: 0.910, green: 0.973, blue: 0.933, alpha: 1)
-    static let infoBackground = NSColor(calibratedRed: 0.910, green: 0.949, blue: 1.000, alpha: 1)
-    static let neutralBackground = NSColor(calibratedRed: 0.949, green: 0.953, blue: 0.961, alpha: 1)
-    static let systemBackground = NSColor(calibratedRed: 0.961, green: 0.949, blue: 0.988, alpha: 1)
+    static let background = NSColor.windowBackgroundColor
+    static let rowBackground = NSColor.controlBackgroundColor
+    static let selectedBackground = NSColor.controlAccentColor.withAlphaComponent(0.18)
+    static let warningBackground = NSColor.systemYellow.withAlphaComponent(0.18)
+    static let successBackground = NSColor.systemGreen.withAlphaComponent(0.16)
+    static let infoBackground = NSColor.systemBlue.withAlphaComponent(0.16)
+    static let neutralBackground = NSColor.underPageBackgroundColor
+    static let systemBackground = NSColor.systemPurple.withAlphaComponent(0.12)
 
-    static let primaryText = NSColor(calibratedWhite: 0.12, alpha: 1)
-    static let secondaryText = NSColor(calibratedWhite: 0.35, alpha: 1)
-    static let mutedText = NSColor(calibratedWhite: 0.55, alpha: 1)
-    static let warningText = NSColor(calibratedRed: 0.600, green: 0.340, blue: 0.000, alpha: 1)
-    static let successText = NSColor(calibratedRed: 0.000, green: 0.420, blue: 0.220, alpha: 1)
-    static let infoText = NSColor(calibratedRed: 0.020, green: 0.300, blue: 0.620, alpha: 1)
-    static let accent = NSColor(calibratedRed: 0.000, green: 0.420, blue: 0.850, alpha: 1)
+    static let primaryText = NSColor.labelColor
+    static let secondaryText = NSColor.secondaryLabelColor
+    static let mutedText = NSColor.tertiaryLabelColor
+    static let warningText = NSColor.systemOrange
+    static let successText = NSColor.systemGreen
+    static let infoText = NSColor.systemBlue
+    static let accent = NSColor.controlAccentColor
 }

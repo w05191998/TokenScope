@@ -39,6 +39,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             diagnostics: { [weak self] in
                 self?.diagnostics() ?? .empty
             },
+            refreshErrorText: { [weak self] in
+                self?.refreshCoordinator.currentSnapshot().lastErrorDescription
+            },
             maintenanceActions: PopoverMaintenanceActions(
                 rebuildDatabase: { [weak self] in
                     guard let self else {

@@ -18,6 +18,7 @@ final class MenuBarController {
         onRefresh: @escaping () -> PopoverMaintenanceResult? = { nil },
         lastUpdatedText: @escaping () -> String = { "Last updated: Never" },
         diagnostics: @escaping () -> PopoverDiagnostics = { .empty },
+        refreshErrorText: @escaping () -> String? = { nil },
         maintenanceActions: PopoverMaintenanceActions = .disabled
     ) {
         statusItem = statusBar.statusItem(withLength: NSStatusItem.variableLength)
@@ -25,7 +26,7 @@ final class MenuBarController {
             displayMode: displayMode,
             summaryProvider: summaryProvider
         )
-        popoverPresenter = PopoverSummaryPresenter(summaryProvider: popoverProvider)
+        popoverPresenter = PopoverSummaryPresenter(summaryProvider: popoverProvider, refreshErrorText: refreshErrorText)
         popover = NSPopover()
         self.onRefresh = onRefresh
         self.lastUpdatedText = lastUpdatedText
