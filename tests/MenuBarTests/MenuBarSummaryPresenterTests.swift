@@ -10,7 +10,7 @@ final class MenuBarSummaryPresenterTests: XCTestCase {
         ))
         let presenter = MenuBarSummaryPresenter(
             summaryProvider: provider,
-            formatter: MenuBarSummaryFormatter(locale: Locale(identifier: "en_US_POSIX"))
+            formatter: MenuBarSummaryFormatter(locale: Locale(identifier: "en_US"))
         )
 
         let state = presenter.refresh()
@@ -36,7 +36,7 @@ final class MenuBarSummaryPresenterTests: XCTestCase {
         let presenter = MenuBarSummaryPresenter(
             displayMode: .tokens,
             summaryProvider: provider,
-            formatter: MenuBarSummaryFormatter(locale: Locale(identifier: "en_US_POSIX"))
+            formatter: MenuBarSummaryFormatter(locale: Locale(identifier: "en_US"))
         )
 
         XCTAssertEqual(presenter.refresh().statusTitle, "100 tokens")

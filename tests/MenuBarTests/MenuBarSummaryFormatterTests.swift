@@ -2,7 +2,7 @@ import XCTest
 @testable import TokenScope
 
 final class MenuBarSummaryFormatterTests: XCTestCase {
-    private let formatter = MenuBarSummaryFormatter(locale: Locale(identifier: "en_US_POSIX"))
+    private let formatter = MenuBarSummaryFormatter(locale: Locale(identifier: "en_US"))
 
     func testCostIsDefaultDisplayMode() {
         let presenter = MenuBarSummaryPresenter(
